@@ -15,6 +15,9 @@ class MainWindowController:
 
         # Create main window
         self.mainWindow = dpg.add_window(tag="Main")
+        dpg.set_viewport_height(700)
+        dpg.set_viewport_width(1000)
+
         # Create horizontal group
         self.horzGroup = dpg.add_group(horizontal=True, parent=self.mainWindow)
 
@@ -22,9 +25,9 @@ class MainWindowController:
         self.labelController = LabelsController(self.config, viewParent=self.horzGroup)
         self.imageController = ImageController(self.config, viewParent=self.horzGroup)
 
+        # Fix sizes
         dpg.set_viewport_resize_callback(self.resizeViewportCallback)
-        dpg.set_viewport_height(700)
-        dpg.set_viewport_width(1000)
+        self.labelController.handleWindowResize([dpg.get_viewport_width(), dpg.get_viewport_height()])
 
 
     def resizeViewportCallback(self, sender, data):
