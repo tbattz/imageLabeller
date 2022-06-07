@@ -9,20 +9,18 @@ class ImageDisplayView:
 
 		# Create right group for images
 		self.groupRight = dpg.add_group(label="Right", parent=self.parent)
-		dpg.add_text("File: " , tag="imgFilenameText", parent=self.groupRight)
+		self.fileText = dpg.add_text("File: " , tag="imgFilenameText", parent=self.groupRight)
 		self.imgButtonGroup = dpg.add_group(label="Image Button", horizontal=True, parent=self.groupRight)
-		#self.btn1 = dpg.add_button(label="Prev (<-)", callback=nextImageCallback, parent=self.groupRight)
-		self.btn1 = dpg.add_button(label="Prev (<-)", parent=self.imgButtonGroup)
-		#dpg.set_item_user_data(btn1, imageList)
-		self.btn2 = dpg.add_button(label="Save Data(S)", parent=self.imgButtonGroup)
-		#self.btn3 = dpg.add_button(label="Next (->)", callback=nextImageCallback, parent=self.groupRight)
-		self.btn3 = dpg.add_button(label="Next (->)", parent=self.imgButtonGroup)
-		#dpg.set_item_user_data(btn3, imageList)
+		self.prevBtn = dpg.add_button(label="Prev (<-)", parent=self.imgButtonGroup)
+		self.saveBtn = dpg.add_button(label="Save Data(S)", parent=self.imgButtonGroup)
+		self.nextBtn = dpg.add_button(label="Next (->)", parent=self.imgButtonGroup)
 
 		self.loadedImage = LoadedImage(None, 800, 800, parentTag="Right", beforeTag="imgFilenameText")
 
 	def setLoadedImage(self, imagePath):
 		self.loadedImage.loadImage(imagePath)
+		fileStr = "File: %s" % self.loadedImage.filename
+		dpg.set_value(self.fileText, value=fileStr)
 
 	def handleWindowResize(self, maxWidth, maxHeight):
 		self.loadedImage.setMaxSize(maxWidth, maxHeight)

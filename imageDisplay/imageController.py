@@ -1,4 +1,4 @@
-import os
+import dearpygui.dearpygui as dpg
 from imageDisplay.imageModel import ImageListModel
 from imageDisplay.imageView import ImageDisplayView
 
@@ -17,10 +17,23 @@ class ImageController:
         self.imageDisplayView = ImageDisplayView(parent=self.viewParent)
 
         # Load first image
-        self.imageDisplayView.setLoadedImage(os.path.join(self.imgDir, self.imageListModel.getCurrentImage()))
+        self.imageDisplayView.setLoadedImage(self.imageListModel.getCurrentImage())
+
+        # Setup callbacks
+        dpg.set_item_callback(self.imageDisplayView.prevBtn, self.prevImageCallback)
+        dpg.set_item_callback(self.imageDisplayView.nextBtn, self.nextImageCallback)
+
 
     def handleWindowResize(self, maxWidth, maxHeight):
         self.imageDisplayView.handleWindowResize(maxWidth, maxHeight)
+
+    def prevImageCallback(self, sender, data):
+        newImage = self.imageListModel.getPrevImage()
+        self.imageDisplayView.setLoadedImage(newImage)
+
+    def nextImageCallback(self, sender, data):
+        newImage = self.imageListModel.getNextImage()
+        self.imageDisplayView.setLoadedImage(newImage)
 
 
 

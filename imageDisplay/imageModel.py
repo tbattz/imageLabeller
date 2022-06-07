@@ -11,12 +11,12 @@ class ImageListModel:
         """
         self.directory = directory
         self.imageList = []
-        self.ind = -1
+        self.ind = 0
 
         self.findImages()
 
     def findImages(self):
-        self.imageList = [f for f in os.listdir(self.directory) if any([f.endswith(ext) for ext in ['.png', '.jpg']])]
+        self.imageList = [os.path.join(self.directory, f) for f in os.listdir(self.directory) if any([f.endswith(ext) for ext in ['.png', '.jpg']])]
 
         print('Found %i images' % len(self.imageList))
 
@@ -24,6 +24,13 @@ class ImageListModel:
         self.ind += 1
         if self.ind > len(self.imageList) - 1:
             self.ind = 0
+
+        return self.imageList[self.ind]
+
+    def getPrevImage(self):
+        self.ind -= 1
+        if self.ind < 0:
+            self.ind = len(self.imageList) - 1
 
         return self.imageList[self.ind]
 
