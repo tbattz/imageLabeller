@@ -17,9 +17,9 @@ class ImageDisplayView:
 
 		self.loadedImage = LoadedImage(None, 800, 800, parentTag="Right", beforeTag="imgFilenameText")
 
-	def setLoadedImage(self, imagePath):
+	def setLoadedImage(self, imagePath, currInd, imgCount):
 		self.loadedImage.loadImage(imagePath)
-		fileStr = "File: %s" % self.loadedImage.filename
+		fileStr = "File: %s (%i/%i)" % (self.loadedImage.filename, currInd, imgCount)
 		dpg.set_value(self.fileText, value=fileStr)
 
 	def handleWindowResize(self, maxWidth, maxHeight):

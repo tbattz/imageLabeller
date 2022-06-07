@@ -17,11 +17,14 @@ class ImageController:
         self.imageDisplayView = ImageDisplayView(parent=self.viewParent)
 
         # Load first image
-        self.imageDisplayView.setLoadedImage(self.imageListModel.getCurrentImage())
+        self.imageDisplayView.setLoadedImage(self.imageListModel.getCurrentImage(), self.imageListModel.ind+1, len(self.imageListModel.imageList))
 
         # Setup callbacks
         dpg.set_item_callback(self.imageDisplayView.prevBtn, self.prevImageCallback)
         dpg.set_item_callback(self.imageDisplayView.nextBtn, self.nextImageCallback)
+        with dpg.handler_registry() as double_click_reg:
+            dpg.add_key_press_handler(key=dpg.mvKey_Left, callback=self.leftArrowCallback)
+            dpg.add_key_press_handler(key=dpg.mvKey_Right, callback=self.rightArrowCallback)
 
 
     def handleWindowResize(self, maxWidth, maxHeight):
@@ -29,11 +32,18 @@ class ImageController:
 
     def prevImageCallback(self, sender, data):
         newImage = self.imageListModel.getPrevImage()
-        self.imageDisplayView.setLoadedImage(newImage)
+        self.imageDisplayView.setLoadedImage(newImage, self.imageListModel.ind+1, len(self.imageListModel.imageList))
 
     def nextImageCallback(self, sender, data):
         newImage = self.imageListModel.getNextImage()
-        self.imageDisplayView.setLoadedImage(newImage)
+        self.imageDisplayView.setLoadedImage(newImage, self.imageListModel.ind+1, len(self.imageListModel.imageList))
 
+    def leftArrowCallback(self, sender, data):
+        # Decrement image
+        self.prevImageCallback(None, None)
+
+    def rightArrowCallback(self, sender, data):
+        # Increment image
+        self.nextImageCallback(None, None)
 
 
