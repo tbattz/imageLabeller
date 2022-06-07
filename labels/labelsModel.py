@@ -17,7 +17,7 @@ class AllLabelData:
         self.labelTypeList = labelTypeList
         self.labelCounts = {k: 0 for k in self.labelTypeList}
 
-    def addBoxLabel(self, labelType, labelName, xypos4):
+    def add2DBoxLabel(self, labelType, labelName, xypos4):
         self.labels.append(SingleLabelData(labelType, labelName, xypos4))
         self.labelCounts[labelType] += 1
 

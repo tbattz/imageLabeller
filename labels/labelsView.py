@@ -13,13 +13,11 @@ class LabelsView:
         # Create left group for labels
         self.groupLeft = dpg.add_group(label="Left", parent=self.parent)
         dpg.add_text("Labels", parent=self.groupLeft)
-        self.labelListBox = dpg.add_listbox(tag='labelsList', items=self.labelItems, width=self.listBoxWidth, num_items=numItems, parent=self.groupLeft)
+        self.labelListBox = dpg.add_listbox(tag='labelsList', items=[], width=self.listBoxWidth, num_items=numItems, parent=self.groupLeft)
         self.labelFuncHorzGroup = dpg.add_group(horizontal=True, parent=self.groupLeft)
-        #dpg.add_button(label="Add new label", tag="addLabelBtn", callback=addLabelCallback, parent=self.labelFuncHorzGroup)
-        dpg.add_button(label="Add new label", tag="addLabelBtn", parent=self.labelFuncHorzGroup)
-        dpg.add_combo(tag="labelTypeCombo", items=self.labelItems, width=self.labelTypeComboWidth, default_value=self.labelItems[0], parent=self.labelFuncHorzGroup)
-        #dpg.add_button(label="Delete Label", callback=deleteLabelCallback, parent=self.parent)
-        dpg.add_button(label="Delete Label", parent=self.groupLeft)
+        self.addBtn = dpg.add_button(label="Add new label", tag="addLabelBtn", parent=self.labelFuncHorzGroup)
+        self.labelCombo = dpg.add_combo(tag="labelTypeCombo", items=self.labelItems, width=self.labelTypeComboWidth, default_value=self.labelItems[0], parent=self.labelFuncHorzGroup)
+        self.delBtn = dpg.add_button(label="Delete Label", parent=self.groupLeft)
 
 
     def handleWindowResize(self, newSize):
@@ -29,4 +27,7 @@ class LabelsView:
         remainH = newHeight - reservedH
         numItems = math.floor(remainH / 17.45)
         dpg.configure_item("labelsList", num_items=numItems)
+
+    def updateLabelListView(self, itemList):
+        dpg.configure_item(self.labelListBox, items=itemList)
 
