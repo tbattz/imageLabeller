@@ -15,7 +15,7 @@ class ImageDisplayView:
 		self.saveBtn = dpg.add_button(label="Save Data(S)", parent=self.imgButtonGroup)
 		self.nextBtn = dpg.add_button(label="Next (->)", parent=self.imgButtonGroup)
 
-		self.plot = dpg.add_plot(tag="plot", label="Image Plot", height=400, width=-1, equal_aspects=True, parent=self.groupRight)
+		self.plot = dpg.add_plot(tag="plot", label="Image Plot", height=400, width=-1, equal_aspects=True, before=self.fileText, parent=self.groupRight)
 		self.xaxis = dpg.add_plot_axis(dpg.mvXAxis, label="x axis", parent=self.plot)
 		self.yaxis = dpg.add_plot_axis(dpg.mvYAxis, label="y axis", parent=self.plot)
 
@@ -26,7 +26,7 @@ class ImageDisplayView:
 		# Remove previous
 		dpg.delete_item("plot")
 		# Create new
-		self.plot = dpg.add_plot(tag="plot", label="Image Plot", height=plotHeight, width=-1, equal_aspects=True, parent=self.groupRight)
+		self.plot = dpg.add_plot(tag="plot", label="Image Plot", height=plotHeight, width=-1, equal_aspects=True, before=self.fileText, parent=self.groupRight)
 		self.xaxis = dpg.add_plot_axis(dpg.mvXAxis, label="x axis", parent=self.plot)
 		self.yaxis = dpg.add_plot_axis(dpg.mvYAxis, label="y axis", parent=self.plot)
 		self.loadedImage.setYaxis(self.yaxis)
