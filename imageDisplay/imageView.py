@@ -15,16 +15,21 @@ class ImageDisplayView:
 		self.saveBtn = dpg.add_button(label="Save Data(S)", parent=self.imgButtonGroup)
 		self.nextBtn = dpg.add_button(label="Next (->)", parent=self.imgButtonGroup)
 
-		self.drawList = dpg.add_drawlist(width=800, height=800, tag="drawList", parent=self.groupRight)
-		self.loadedImage = LoadedImage(None, 800, 800, parentTag=self.groupRight, drawList=self.drawList)
+		self.plot = dpg.add_plot(tag="plot", label="Image Plot", height=400, width=-1, equal_aspects=True, parent=self.groupRight)
+		self.xaxis = dpg.add_plot_axis(dpg.mvXAxis, label="x axis", parent=self.plot)
+		self.yaxis = dpg.add_plot_axis(dpg.mvYAxis, label="y axis", parent=self.plot)
+
+		self.loadedImage = LoadedImage(None, 800, 800, parentTag=self.groupRight, yaxis=self.yaxis)
 
 
-	def reinitDrawList(self, width, height):
+	def reinitPlot(self, plotHeight):
 		# Remove previous
-		dpg.delete_item("drawList")
-		# Create new)
-		self.drawList = dpg.add_drawlist(width=width, height=height, tag="drawList", parent=self.groupRight, before=self.fileText)
-		self.loadedImage.setDrawList(self.drawList)
+		dpg.delete_item("plot")
+		# Create new
+		self.plot = dpg.add_plot(tag="plot", label="Image Plot", height=plotHeight, width=-1, equal_aspects=True, parent=self.groupRight)
+		self.xaxis = dpg.add_plot_axis(dpg.mvXAxis, label="x axis", parent=self.plot)
+		self.yaxis = dpg.add_plot_axis(dpg.mvYAxis, label="y axis", parent=self.plot)
+		self.loadedImage.setYaxis(self.yaxis)
 
 		# Load new texture
 		self.loadedImage.updateTexture()
@@ -35,20 +40,18 @@ class ImageDisplayView:
 		fileStr = "File: %s (%i/%i)" % (self.loadedImage.filename, currInd, imgCount)
 		dpg.set_value(self.fileText, value=fileStr)
 
-		self.loadedImage.resizeImage()
 
 	def handleWindowResize(self, maxWidth, maxHeight):
 		self.loadedImage.setMaxSize(maxWidth, maxHeight)
-		self.reinitDrawList(self.loadedImage.newWidth, self.loadedImage.newHeight)
-
+		dpg.set_item_height(self.plot, maxHeight)
 
 
 class LoadedImage:
-	def __init__(self, filename, maxWidth, maxHeight, parentTag, drawList):
+	def __init__(self, filename, maxWidth, maxHeight, parentTag, yaxis):
 		self.filename = filename
 		self.parentTag = parentTag
 		self.imgLayer = None
-		self.drawList = drawList
+		self.yaxis = yaxis
 		self.image = None
 		self.width, self.height = None, None
 		self.newWidth, self.newHeight = None, None
@@ -60,8 +63,8 @@ class LoadedImage:
 
 		self.textureLoaded = False
 
-	def setDrawList(self, newDrawList):
-		self.drawList = newDrawList
+	def setYaxis(self, newYaxis):
+		self.yaxis = newYaxis
 
 	def flatternImg(self, img):
 		return np.true_divide(np.asfarray(np.ravel(img), dtype='f'), 255.0)
@@ -115,8 +118,7 @@ class LoadedImage:
 
 		self.textureLoaded = True
 
-		# TODO - check add_image_series for zooming and panning
-		dpg.draw_image("textureTag", (0,0), (self.newWidth, self.newHeight), parent=self.drawList)
+		dpg.add_image_series("textureTag", [0, 0], [self.width, self.height], parent=self.yaxis)
 		#dpg.draw_line((10, 10), (800, 800), color=(255, 0, 0, 255), thickness=1, parent=self.drawList)
 
 	def updateTexture(self):

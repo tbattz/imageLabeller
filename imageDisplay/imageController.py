@@ -9,6 +9,7 @@ class ImageController:
         self.config = config
         self.viewParent = viewParent
         self.imgDir = config['imgDir']
+        self.heightOffset = 35*2
 
         # Create data store
         self.imageListModel = ImageListModel(self.imgDir)
@@ -17,8 +18,9 @@ class ImageController:
         self.imageDisplayView = ImageDisplayView(parent=self.viewParent)
 
         # Load first image
+        plotHeight = dpg.get_viewport_height() - self.heightOffset
         self.imageDisplayView.setLoadedImage(self.imageListModel.getCurrentImage(), self.imageListModel.ind+1, len(self.imageListModel.imageList))
-        self.imageDisplayView.reinitDrawList(width=self.imageDisplayView.loadedImage.newWidth, height=self.imageDisplayView.loadedImage.newHeight)
+        self.imageDisplayView.reinitPlot(plotHeight)
 
         # Setup callbacks
         dpg.set_item_callback(self.imageDisplayView.prevBtn, self.prevImageCallback)
@@ -33,13 +35,15 @@ class ImageController:
 
     def prevImageCallback(self, sender, data):
         newImage = self.imageListModel.getPrevImage()
+        plotHeight = dpg.get_viewport_height() - self.heightOffset
         self.imageDisplayView.setLoadedImage(newImage, self.imageListModel.ind+1, len(self.imageListModel.imageList))
-        self.imageDisplayView.reinitDrawList(self.imageDisplayView.loadedImage.newWidth, self.imageDisplayView.loadedImage.newHeight)
+        self.imageDisplayView.reinitPlot(plotHeight)
 
     def nextImageCallback(self, sender, data):
         newImage = self.imageListModel.getNextImage()
+        plotHeight = dpg.get_viewport_height() - self.heightOffset
         self.imageDisplayView.setLoadedImage(newImage, self.imageListModel.ind+1, len(self.imageListModel.imageList))
-        self.imageDisplayView.reinitDrawList(self.imageDisplayView.loadedImage.newWidth, self.imageDisplayView.loadedImage.newHeight)
+        self.imageDisplayView.reinitPlot(plotHeight)
 
     def leftArrowCallback(self, sender, data):
         # Decrement image
