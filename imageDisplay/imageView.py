@@ -15,23 +15,40 @@ class ImageDisplayView:
 		self.saveBtn = dpg.add_button(label="Save Data(S)", parent=self.imgButtonGroup)
 		self.nextBtn = dpg.add_button(label="Next (->)", parent=self.imgButtonGroup)
 
-		self.loadedImage = LoadedImage(None, 800, 800, parentTag="Right", beforeTag="imgFilenameText")
+		self.drawList = dpg.add_drawlist(width=800, height=800, tag="drawList", parent=self.groupRight)
+		self.loadedImage = LoadedImage(None, 800, 800, parentTag=self.groupRight, drawList=self.drawList)
+
+
+	def reinitDrawList(self, width, height):
+		# Remove previous
+		dpg.delete_item("drawList")
+		# Create new)
+		self.drawList = dpg.add_drawlist(width=width, height=height, tag="drawList", parent=self.groupRight, before=self.fileText)
+		self.loadedImage.setDrawList(self.drawList)
+
+		# Load new texture
+		self.loadedImage.updateTexture()
+
 
 	def setLoadedImage(self, imagePath, currInd, imgCount):
 		self.loadedImage.loadImage(imagePath)
 		fileStr = "File: %s (%i/%i)" % (self.loadedImage.filename, currInd, imgCount)
 		dpg.set_value(self.fileText, value=fileStr)
 
+		self.loadedImage.resizeImage()
+
 	def handleWindowResize(self, maxWidth, maxHeight):
 		self.loadedImage.setMaxSize(maxWidth, maxHeight)
+		self.reinitDrawList(self.loadedImage.newWidth, self.loadedImage.newHeight)
 
 
 
 class LoadedImage:
-	def __init__(self, filename, maxWidth, maxHeight, parentTag, beforeTag):
+	def __init__(self, filename, maxWidth, maxHeight, parentTag, drawList):
 		self.filename = filename
 		self.parentTag = parentTag
-		self.beforeTag = beforeTag
+		self.imgLayer = None
+		self.drawList = drawList
 		self.image = None
 		self.width, self.height = None, None
 		self.newWidth, self.newHeight = None, None
@@ -43,39 +60,8 @@ class LoadedImage:
 
 		self.textureLoaded = False
 
-
-	def loadImage(self, filename):
-		self.filename = filename
-		self.image = Image.open(self.filename)
-		self.width = self.image.size[0]
-		self.height = self.image.size[1]
-		self.resizedImg = self.resizeToLimits(self.image)
-		data = np.ascontiguousarray(self.resizedImg)
-		# Add alpha column if needed
-		if data.shape[2] != 4:
-			ones = np.ones((data.shape[0], data.shape[1], 1)) * 255.0
-			self.data = np.c_[data, ones]
-		else:
-			self.data = data
-		self.flatImg = self.flatternImg(self.data)
-
-		if not self.textureLoaded:
-			self.createTexture()
-			self.textureLoaded = True
-		else:
-			self.updateTexture()
-
-	def createTexture(self):
-		with dpg.texture_registry(show=False):
-			dpg.add_static_texture(self.newWidth, self.newHeight, self.flatImg, tag='textureTag')
-
-		dpg.add_group(tag='imgGroup', horizontal=True, parent=self.parentTag, before=self.beforeTag)
-		dpg.add_image("textureTag", parent="imgGroup")
-
-	def updateTexture(self):
-		dpg.delete_item("imgGroup")
-		dpg.delete_item("textureTag")
-		self.createTexture()
+	def setDrawList(self, newDrawList):
+		self.drawList = newDrawList
 
 	def flatternImg(self, img):
 		return np.true_divide(np.asfarray(np.ravel(img), dtype='f'), 255.0)
@@ -84,7 +70,7 @@ class LoadedImage:
 		self.maxWidth = maxWidth
 		self.maxHeight = maxHeight
 
-		self.loadImage(self.filename)
+		self.resizeImage()
 
 	def resizeToLimits(self, image):
 		# Resize the image to the maximum given
@@ -102,3 +88,41 @@ class LoadedImage:
 		resizedImage = image.resize((self.newWidth, self.newHeight), Image.LANCZOS)
 
 		return resizedImage
+
+	def resizeImage(self):
+		self.resizedImg = self.resizeToLimits(self.image)
+		data = np.ascontiguousarray(self.resizedImg)
+		# Add alpha column if needed
+		if data.shape[2] != 4:
+			ones = np.ones((data.shape[0], data.shape[1], 1)) * 255.0
+			self.data = np.c_[data, ones]
+		else:
+			self.data = data
+		self.flatImg = self.flatternImg(self.data)
+
+
+	def loadImage(self, filename):
+		self.filename = filename
+		self.image = Image.open(self.filename)
+		self.width = self.image.size[0]
+		self.height = self.image.size[1]
+
+		self.resizeImage()
+
+	def createTexture(self):
+		with dpg.texture_registry(show=False):
+			dpg.add_static_texture(self.newWidth, self.newHeight, self.flatImg, tag='textureTag')
+
+		self.textureLoaded = True
+
+		# TODO - check add_image_series for zooming and panning
+		dpg.draw_image("textureTag", (0,0), (self.newWidth, self.newHeight), parent=self.drawList)
+		#dpg.draw_line((10, 10), (800, 800), color=(255, 0, 0, 255), thickness=1, parent=self.drawList)
+
+	def updateTexture(self):
+		if self.textureLoaded:
+			dpg.delete_item("textureTag")
+
+		self.createTexture()
+
+

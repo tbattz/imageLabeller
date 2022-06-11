@@ -18,6 +18,7 @@ class ImageController:
 
         # Load first image
         self.imageDisplayView.setLoadedImage(self.imageListModel.getCurrentImage(), self.imageListModel.ind+1, len(self.imageListModel.imageList))
+        self.imageDisplayView.reinitDrawList(width=self.imageDisplayView.loadedImage.newWidth, height=self.imageDisplayView.loadedImage.newHeight)
 
         # Setup callbacks
         dpg.set_item_callback(self.imageDisplayView.prevBtn, self.prevImageCallback)
@@ -33,10 +34,12 @@ class ImageController:
     def prevImageCallback(self, sender, data):
         newImage = self.imageListModel.getPrevImage()
         self.imageDisplayView.setLoadedImage(newImage, self.imageListModel.ind+1, len(self.imageListModel.imageList))
+        self.imageDisplayView.reinitDrawList(self.imageDisplayView.loadedImage.newWidth, self.imageDisplayView.loadedImage.newHeight)
 
     def nextImageCallback(self, sender, data):
         newImage = self.imageListModel.getNextImage()
         self.imageDisplayView.setLoadedImage(newImage, self.imageListModel.ind+1, len(self.imageListModel.imageList))
+        self.imageDisplayView.reinitDrawList(self.imageDisplayView.loadedImage.newWidth, self.imageDisplayView.loadedImage.newHeight)
 
     def leftArrowCallback(self, sender, data):
         # Decrement image

@@ -32,7 +32,9 @@ class MainWindowController:
 
     def resizeViewportCallback(self, sender, data):
         self.labelController.handleWindowResize(data)
-        maxWidth = data[0] - self.labelController.labelsView.listBoxWidth
+        data = dpg.get_item_rect_size("Main")
+        # Extra margin needed as current size is delayed if user moves the mouse too quickly
+        maxWidth = data[0] - self.labelController.labelsView.listBoxWidth - 50
         maxHeight = data[1] - (35*2)
         self.imageController.handleWindowResize(maxWidth, maxHeight)
 
