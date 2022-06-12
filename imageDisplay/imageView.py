@@ -2,6 +2,8 @@ import dearpygui.dearpygui as dpg
 from PIL import Image
 import numpy as np
 
+from imageDisplay.Box2DView import Box2DView
+
 
 class ImageDisplayView:
 	def __init__(self, parent):
@@ -19,6 +21,8 @@ class ImageDisplayView:
 		self.xaxis = dpg.add_plot_axis(dpg.mvXAxis, label="x axis", parent=self.plot)
 		self.yaxis = dpg.add_plot_axis(dpg.mvYAxis, label="y axis", parent=self.plot)
 
+		self.labelViews = {}
+
 		self.loadedImage = LoadedImage(None, 800, 800, parentTag=self.groupRight, yaxis=self.yaxis)
 
 
@@ -35,6 +39,14 @@ class ImageDisplayView:
 		self.loadedImage.updateTexture()
 
 
+		#dpg.add_drag_point(label="dpoint1", color=[255, 0, 255, 255], default_value=(-50.0, -50.0), callback=None, parent=self.plot)
+		dpg.add_drag_point(label="dpoint2", color=[255, 0, 0, 255], default_value=(-50.0, -50.0), callback=None,
+						   parent=self.plot)
+		dpg.add_line_series([100, 400, 400, 100, 100], [100, 100, 400, 400, 100], label="Box 1", tag="series_tag", parent=self.yaxis)
+		dpg.add_scatter_series([100, 400, 400, 100, 100], [100, 100, 400, 400, 100], label="Box 1b", tag="series_tagb", parent=self.yaxis)
+		dpg.add_area_series([100, 400, 400, 100, 100], [100, 100, 400, 400, 100], fill=[255, 50, 100, 40], parent=self.yaxis)
+
+
 	def setLoadedImage(self, imagePath, currInd, imgCount):
 		self.loadedImage.loadImage(imagePath)
 		fileStr = "File: %s (%i/%i)" % (self.loadedImage.filename, currInd, imgCount)
@@ -44,6 +56,17 @@ class ImageDisplayView:
 	def handleWindowResize(self, maxWidth, maxHeight):
 		self.loadedImage.setMaxSize(maxWidth, maxHeight)
 		dpg.set_item_height(self.plot, maxHeight)
+
+
+	def addLabel(self, labelName, labelType, xys):
+		if labelType == '2D':
+			self.labelViews[labelName] = Box2DView(xys, self.yaxis, labelName)
+			print('added 3d label %s' % labelName)
+		elif labelType == '3D':
+			pass
+		else:
+			print('Unknown label type.')
+
 
 
 class LoadedImage:
